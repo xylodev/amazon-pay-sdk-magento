@@ -1,5 +1,4 @@
 <?php
-namespace AmazonPay;
 
 /* Class Client
  * Takes configuration information
@@ -7,21 +6,7 @@ namespace AmazonPay;
  * returns Response Object
  */
 
-require_once 'ResponseParser.php';
-require_once 'HttpCurl.php';
-require_once 'ClientInterface.php';
-require_once 'Regions.php';
-if (!interface_exists('\Psr\Log\LoggerAwareInterface')) {
-    require_once(__DIR__.'/../Psr/Log/LoggerAwareInterface.php');
-}
-
-if (!interface_exists('\Psr\Log\LoggerInterface')) {
-    require_once(__DIR__.'/../Psr/Log/LoggerInterface.php');
-}
-use Psr\Log\LoggerAwareInterface;
-use Psr\Log\LoggerInterface;
-
-class Client implements ClientInterface, LoggerAwareInterface
+class AmazonPay_Client implements AmazonPay_ClientInterface
 {
     const SDK_VERSION = '3.2.0';
     const MWS_VERSION = '2013-01-01';
@@ -62,9 +47,6 @@ class Client implements ClientInterface, LoggerAwareInterface
     private $profileEndpointUrls;
     private $regionMappings;
 
-    // Implement a logging library that utilizes the PSR 3 logger interface
-    private $logger = null;
-
     // Boolean variable to check if the API call was a success
     public $success = false;
 
@@ -101,23 +83,10 @@ class Client implements ClientInterface, LoggerAwareInterface
     }
 
 
-    public function setLogger(LoggerInterface $logger = null) {
-        $this->logger = $logger;
-    }
-    
-
-    /* Helper function to log data within the Client */
-    private function logMessage($message) {
-        if ($this->logger) {
-            $this->logger->debug($message);
-        }
-    }
-    
-
-    /* Get the Region specific properties from the Regions class.*/
+    /* Get the Region specific properties from the AmazonPay_Regions class.*/
     private function getRegionUrls()
     {
-        $regionObject = new Regions();
+        $regionObject = new AmazonPay_Regions();
         $this->mwsServiceUrls = $regionObject->mwsServiceUrls;
         $this->regionMappings = $regionObject->regionMappings;
         $this->profileEndpointUrls = $regionObject->profileEndpointUrls;
@@ -318,7 +287,7 @@ class Client implements ClientInterface, LoggerAwareInterface
         $accessToken = urldecode($accessToken);
         $url          = $this->profileEndpoint . '/auth/o2/tokeninfo?access_token=' . $this->urlEncode($accessToken);
 
-        $httpCurlRequest = new HttpCurl($this->config);
+        $httpCurlRequest = new AmazonPay_HttpCurl($this->config);
 
         $response = $httpCurlRequest->httpGet($url);
         $data       = json_decode($response);
@@ -333,7 +302,7 @@ class Client implements ClientInterface, LoggerAwareInterface
 
         // Exchange the access token for user profile
         $url             = $this->profileEndpoint . '/user/profile';
-        $httpCurlRequest = new HttpCurl($this->config);
+        $httpCurlRequest = new AmazonPay_HttpCurl($this->config);
 
         $httpCurlRequest->setAccessToken($accessToken);
         $httpCurlRequest->setHttpHeader();
@@ -407,7 +376,7 @@ class Client implements ClientInterface, LoggerAwareInterface
         $response = $this->invokePost($parametersString);
 
         // Send this response as args to ResponseParser class which will return the object of the class.
-        $responseObject = new ResponseParser($response);
+        $responseObject = new AmazonPay_ResponseParser($response);
         return $responseObject;
     }
 
@@ -1532,8 +1501,6 @@ class Client implements ClientInterface, LoggerAwareInterface
         $data .= "\n";
         $data .= $this->getParametersAsString($parameters);
 
-        $this->logMessage($this->sanitizeRequestData($data));
-
         return $data;
     }
 
@@ -1596,11 +1563,10 @@ class Client implements ClientInterface, LoggerAwareInterface
             do {
                 try {
                     $this->constructUserAgentHeader();
-                    $httpCurlRequest = new HttpCurl($this->config);
+                    $httpCurlRequest = new AmazonPay_HttpCurl($this->config);
                     $response = $httpCurlRequest->httpPost($this->mwsServiceUrl, $this->userAgent, $parameters);
                     $curlResponseInfo = $httpCurlRequest->getCurlResponseInfo();
                     $statusCode = $curlResponseInfo["http_code"];
-                    $this->logMessage($this->userAgent);
                     $response = array(
                         'Status' => $statusCode,
                         'ResponseBody' => $response
@@ -1627,7 +1593,6 @@ class Client implements ClientInterface, LoggerAwareInterface
             throw $se;
         }
 
-        $this->logMessage($this->sanitizeResponseData($response['ResponseBody']));
         return $response;
     }
 

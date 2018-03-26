@@ -1,11 +1,10 @@
 <?php
-namespace AmazonPay;
 
 /* Class Regions
  * Defines all Region specific properties
  */
 
-class Regions
+class AmazonPay_Regions
 {
     public $mwsServiceUrls = array('eu' => 'mws-eu.amazonservices.com',
 				   'na' => 'mws.amazonservices.com',

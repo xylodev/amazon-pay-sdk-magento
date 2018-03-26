@@ -1,9 +1,8 @@
 <?php
-namespace AmazonPay;
 
 /* Interface for IpnHandler.php */
 
-interface IpnHandlerInterface
+interface AmazonPay_IpnHandlerInterface
 {   
     /* returnMessage() - JSON decode the raw [Message] portion of the IPN */
     

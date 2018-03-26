@@ -1,23 +1,11 @@
 <?php
-namespace AmazonPay;
 
 /* Class IPN_Handler
  * Takes headers and body of the IPN message as input in the constructor
  * verifies that the IPN is from the right resource and has the valid data
  */
 
-require_once 'HttpCurl.php';
-require_once 'IpnHandlerInterface.php';
-if (!interface_exists('\Psr\Log\LoggerAwareInterface')) {
-    require_once(__DIR__.'/../Psr/Log/LoggerAwareInterface.php');
-}
-if (!interface_exists('\Psr\Log\LoggerInterface')) {
-    require_once(__DIR__.'/../Psr/Log/LoggerInterface.php');
-}
-use Psr\Log\LoggerAwareInterface;
-use Psr\Log\LoggerInterface;
-
-class IpnHandler implements IpnHandlerInterface, LoggerAwareInterface
+class AmazonPay_IpnHandler implements AmazonPay_IpnHandlerInterface
 {
 
     private $headers = null;
@@ -28,9 +16,6 @@ class IpnHandler implements IpnHandlerInterface, LoggerAwareInterface
     private $certificate = null;
     private $expectedCnName = 'sns.amazonaws.com';
     private $defaultHostPattern = '/^sns\.[a-zA-Z0-9\-]{3,}\.amazonaws\.com(\.cn)?$/';
-
-    // Implement a logging library that utilizes the PSR 3 logger interface
-    private $logger = null;
 
     private $ipnConfig = array('cabundle_file'  => null,
                    'proxy_host'     => null,
@@ -83,18 +68,6 @@ class IpnHandler implements IpnHandlerInterface, LoggerAwareInterface
                 throw new \Exception('Key ' . $key . ' is either not part of the configuration or has incorrect Key name.
                 check the ipnConfig array key names to match your key names of your config array ', 1);
             }
-        }
-    }
-
-    public function setLogger(LoggerInterface $logger = null) {
-        $this->logger = $logger;
-    }
-    
-    /* Helper function to log data within the Client */
-
-    private function logMessage($message) {
-        if ($this->logger) {
-            $this->logger->debug($message);
         }
     }
 
@@ -284,7 +257,7 @@ class IpnHandler implements IpnHandlerInterface, LoggerAwareInterface
     
     private function getCertificate($certificatePath)
     {
-        $httpCurlRequest  = new HttpCurl($this->ipnConfig);
+        $httpCurlRequest  = new AmazonPay_HttpCurl($this->ipnConfig);
 
     $response = $httpCurlRequest->httpGet($certificatePath);
 
@@ -431,9 +404,6 @@ class IpnHandler implements IpnHandlerInterface, LoggerAwareInterface
     private function simpleXmlObject()
     {
         $ipnMessage = $this->returnMessage();
-
-        $this->logMessage(sprintf('IPN received for merchant account: %s', $this->sanitizeResponseData($ipnMessage['SellerId'])));
-        $this->logMessage($this->sanitizeResponseData($ipnMessage['NotificationData']));
 
         // Getting the Simple XML element object of the IPN XML Response Body
         $response = simplexml_load_string((string) $ipnMessage['NotificationData']);
