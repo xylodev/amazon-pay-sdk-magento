@@ -1,9 +1,8 @@
 <?php
-namespace AmazonPay;
 
 /* Interface for HttpCurl.php */
 
-interface HttpCurlInterface
+interface AmazonPay_HttpCurlInterface
 {    
     /* Set Http header for Access token for the GetUserInfo call */
     

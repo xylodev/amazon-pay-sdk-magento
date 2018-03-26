@@ -1,9 +1,8 @@
 <?php
-namespace AmazonPay;
 
 /* Interface for ResponseParser.php */
 
-interface ResponseInterface
+interface AmazonPay_ResponseInterface
 {   
     /* Returns the XML portion of the response */
     

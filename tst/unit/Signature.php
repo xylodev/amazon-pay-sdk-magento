@@ -1,5 +1,4 @@
 <?php
-namespace AmazonPay;
 
 class Signature
 {

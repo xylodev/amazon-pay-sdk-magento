@@ -1,9 +1,8 @@
 <?php
-namespace AmazonPay;
 
 /* Interface class to showcase the public API methods for Amazon Pay */
 
-interface ClientInterface
+interface AmazonPay_ClientInterface
 {
     /* Setter for sandbox
      * Sets the boolean value for config['sandbox'] variable

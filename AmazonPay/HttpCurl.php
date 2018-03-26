@@ -1,13 +1,10 @@
 <?php
-namespace AmazonPay;
 
 /* Class HttpCurl
  * Handles Curl POST function for all requests
  */
 
-require_once 'HttpCurlInterface.php';
-
-class HttpCurl implements HttpCurlInterface
+class AmazonPay_HttpCurl implements AmazonPay_HttpCurlInterface
 {
     private $config = array();
     private $header = false;
